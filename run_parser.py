@@ -20,7 +20,7 @@ def main():
             transformed_ast = transformation.get_transformed_ast(code)
 
             renderer = visualizing.GraphRenderer()
-            renderer.render(transformed_ast, label=label)
+            renderer.render(data=transformed_ast, label=label)
 
     else:
         print("No input file")

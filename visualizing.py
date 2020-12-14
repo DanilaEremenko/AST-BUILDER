@@ -1,7 +1,8 @@
-import graphviz as gv
-import subprocess
 import numbers
+import subprocess
 from uuid import uuid4 as uuid
+
+import graphviz as gv
 
 
 class GraphRenderer:
@@ -68,7 +69,7 @@ class GraphRenderer:
             child_node_id = self._render_node(value)
             self._graph.edge(node_id, child_node_id, label=self._escape_dot_label(str(idx)))
 
-    def render(self, data, *, label=None):
+    def render(self, data, file_name, label=None):
         # create the graph
         graphattrs = self.graphattrs.copy()
         if label is not None:
@@ -83,6 +84,7 @@ class GraphRenderer:
         self._rendered_nodes = None
 
         # display the graph
+        graph.filename = file_name + '.gv'
         graph.format = "pdf"
-        graph.view()
-        subprocess.Popen(['xdg-open', "test.pdf"])
+        graph.view(quiet=True,quiet_view=True)
+        # process = subprocess.Popen(['xdg-open', "test.pdf"])

@@ -1,29 +1,16 @@
-import optparse
-import sys
-
 import transformation
 import visualizing
 
 
 def main():
-    parser = optparse.OptionParser(usage="astvisualizer.py [options] [string]")
-    parser.add_option("-f", "--file", action="store",
-                      help="Read a code snippet from the specified file")
+    input_file = 'tests/1_simple_if_else_test.py'
+    with open(input_file) as input_fp:
+        code = input_fp.read()
 
-    options, _ = parser.parse_args(sys.argv)
-    if options.file:
-        with open(options.file) as input_file:
-            code = input_file.read()
+        transformed_ast = transformation.get_transformed_ast(code)
 
-            label = options.file
-
-            transformed_ast = transformation.get_transformed_ast(code)
-
-            renderer = visualizing.GraphRenderer()
-            renderer.render(data=transformed_ast, label=label)
-
-    else:
-        print("No input file")
+        renderer = visualizing.GraphRenderer()
+        renderer.render(data=transformed_ast, file_name=input_file[:-3], label=input_file)
 
 
 if __name__ == '__main__':

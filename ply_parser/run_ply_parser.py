@@ -11,7 +11,5 @@ if __name__ == '__main__':
         'uuid': get_uuid(),
         'body': ast_lines_dict
     }
-    ast_gv_str = ast_dict_to_gv(ast_dict=ast_dict)
-
-    with open('result.gv', 'w') as result_fp:
-        result_fp.write(ast_gv_str)
+    ast_digraph = ast_dict_to_gv(ast_dict=ast_dict)
+    ast_digraph.view(filename='result.gv')

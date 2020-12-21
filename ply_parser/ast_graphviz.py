@@ -1,4 +1,5 @@
 from uuid import uuid1
+from graphviz import Digraph
 
 LIST_STR = '[list]'
 
@@ -12,32 +13,37 @@ def get_uuid():
     return str(RANDOM)
 
 
-def draw_and_connect(ast_gv_str, parent_uuid, child_uuid, child_name, connect_name):
-    ast_gv_str[0] += f"{child_uuid} [label = \"{child_name}\"]\n"
-    ast_gv_str[0] += f"{parent_uuid} -> {child_uuid} [label = {connect_name}]\n"
-    return child_uuid
+def draw_and_connect(ast_digraph: Digraph, parent_uuid, child_uuid, child_name, connect_name):
+    # ast_gv_str[0] += f"{child_uuid} [label = \"{child_name}\"]\n"
+    # ast_gv_str[0] += f"{parent_uuid} -> {child_uuid} [label = {connect_name}]\n"
+    try:
+        ast_digraph.node(name=child_uuid, label=child_name)
+        ast_digraph.edge(tail_name=parent_uuid, head_name=child_uuid, label=connect_name)
+        return child_uuid
+    except Exception():
+        print()
 
 
-def dict_to_gv_recurs(ast_dict, ast_gv_res):
+def dict_to_gv_recurs(ast_dict, ast_digraph: Digraph):
     if ast_dict['type'] == 'num':
         draw_and_connect(
-            ast_gv_str=ast_gv_res,
+            ast_digraph=ast_digraph,
             parent_uuid=ast_dict['uuid'],
             child_uuid=get_uuid(),
-            child_name=ast_dict['n'],
+            child_name=str(ast_dict['n']),
             connect_name='n'
         )
         return
     elif ast_dict['type'] == 'ident':
         draw_and_connect(
-            ast_gv_str=ast_gv_res,
+            ast_digraph=ast_digraph,
             parent_uuid=ast_dict['uuid'],
             child_uuid=get_uuid(),
             child_name=ast_dict['id'],
             connect_name='id'
         )
         draw_and_connect(
-            ast_gv_str=ast_gv_res,
+            ast_digraph=ast_digraph,
             parent_uuid=ast_dict['uuid'],
             child_uuid=get_uuid(),
             child_name=ast_dict['ctx'],
@@ -49,7 +55,7 @@ def dict_to_gv_recurs(ast_dict, ast_gv_res):
         if type(value) == list:
             # draw [list] node
             new_list_uuid = draw_and_connect(
-                ast_gv_str=ast_gv_res,
+                ast_digraph=ast_digraph,
                 parent_uuid=ast_dict['uuid'],
                 child_uuid=get_uuid(),
                 child_name=LIST_STR,
@@ -59,14 +65,14 @@ def dict_to_gv_recurs(ast_dict, ast_gv_res):
             for i, list_elem in enumerate(value):
                 # create elements if list
                 draw_and_connect(
-                    ast_gv_str=ast_gv_res,
+                    ast_digraph=ast_digraph,
                     parent_uuid=new_list_uuid,
                     child_uuid=list_elem['uuid'],
                     child_name=list_elem['type'],
                     connect_name=str(i)
                 )
                 # process child
-                dict_to_gv_recurs(list_elem, ast_gv_res)
+                dict_to_gv_recurs(list_elem, ast_digraph)
 
         elif type(value) == str:
             pass
@@ -79,9 +85,9 @@ def dict_to_gv_recurs(ast_dict, ast_gv_res):
 
 
 def ast_dict_to_gv(ast_dict):
-    ast_gv_res = ['digraph G {\n']
-    dict_to_gv_recurs(ast_dict=ast_dict, ast_gv_res=ast_gv_res)
-    return ast_gv_res[0] + '}'
+    ast_digraph = Digraph(format='pdf')
+    dict_to_gv_recurs(ast_dict=ast_dict, ast_digraph=ast_digraph)
+    return ast_digraph
 
 
 def test():
@@ -124,8 +130,8 @@ def test():
         ]
 
     }
-    ast_gv_str = ast_dict_to_gv(ast_dict)
-    print(ast_gv_str)
+    ast_digraph = ast_dict_to_gv(ast_dict)
+    ast_digraph.view(filename='result.gv')
 
 
 if __name__ == '__main__':

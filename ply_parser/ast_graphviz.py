@@ -24,33 +24,7 @@ def draw_and_connect(ast_digraph: Digraph, parent_uuid, child_uuid, child_name, 
         print()
 
 
-def dict_to_gv_recurs(ast_dict, ast_digraph: Digraph):
-    if ast_dict['type'] == 'num':
-        draw_and_connect(
-            ast_digraph=ast_digraph,
-            parent_uuid=ast_dict['uuid'],
-            child_uuid=get_uuid(),
-            child_name=str(ast_dict['n']),
-            connect_name='n'
-        )
-        return
-    elif ast_dict['type'] == 'ident':
-        draw_and_connect(
-            ast_digraph=ast_digraph,
-            parent_uuid=ast_dict['uuid'],
-            child_uuid=get_uuid(),
-            child_name=ast_dict['id'],
-            connect_name='id'
-        )
-        draw_and_connect(
-            ast_digraph=ast_digraph,
-            parent_uuid=ast_dict['uuid'],
-            child_uuid=get_uuid(),
-            child_name=ast_dict['ctx'],
-            connect_name='ctx'
-        )
-        return
-
+def dict_to_gv_recurs(ast_dict: dict, ast_digraph: Digraph):
     for key, value in ast_dict.items():
         if type(value) == list:
             # draw [list] node
@@ -74,9 +48,22 @@ def dict_to_gv_recurs(ast_dict, ast_digraph: Digraph):
                 # process child
                 dict_to_gv_recurs(list_elem, ast_digraph)
 
-        elif type(value) == str:
-            pass
-
+        elif type(value) == str and key not in ('type', 'uuid'):
+            draw_and_connect(
+                ast_digraph=ast_digraph,
+                parent_uuid=ast_dict['uuid'],
+                child_uuid=get_uuid(),
+                child_name=value,
+                connect_name=key
+            )
+        elif type(value) == int:
+            draw_and_connect(
+                ast_digraph=ast_digraph,
+                parent_uuid=ast_dict['uuid'],
+                child_uuid=get_uuid(),
+                child_name=str(value),
+                connect_name=key
+            )
         elif type(value) == dict:
             draw_and_connect(
                 ast_digraph=ast_digraph,
@@ -86,9 +73,6 @@ def dict_to_gv_recurs(ast_dict, ast_digraph: Digraph):
                 connect_name=key
             )
             dict_to_gv_recurs(value, ast_digraph)
-
-        else:
-            raise Exception('Wha?')
 
 
 def ast_dict_to_gv(ast_dict):

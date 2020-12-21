@@ -50,7 +50,7 @@ reserved = {
     'elif': 'ELIF',
     'else': 'ELSE',
     '+': 'PLUS',
-    '-': 'TIMES',
+    '-': 'MINUS',
     '*': 'TIMES',
     '/': 'DIV',
     '&': 'AND',

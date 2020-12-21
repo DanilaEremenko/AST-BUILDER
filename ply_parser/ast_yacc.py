@@ -2,6 +2,12 @@ from ast_lex import tokens
 from ast_graphviz import get_uuid
 import ply.yacc as yacc
 
+precedence = (
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIV'),
+    ('nonassoc', 'UMINUS')
+)
+
 
 #######################################################################
 # --------------------------- YACC ------------------------------------
@@ -53,36 +59,34 @@ def p_bin_ops_to_expr(p):
 
 
 def p_div_bin_op_with_bin_op(p):
-    """bin_op : bin_op DIV bin_op"""
+    """bin_op : bin_op TIMES bin_op
+            |   bin_op DIV bin_op"""
     p[0] = {'type': 'bin_op', 'uuid': get_uuid(), 'left': p[1], 'op': p[2], 'right': p[3]}
 
 
 def p_bin_op_with_bin_op(p):
-    """bin_op : bin_op TIMES bin_op
-            |   bin_op MINUS bin_op
+    """bin_op : bin_op MINUS bin_op
             |   bin_op PLUS bin_op"""
     p[0] = {'type': 'bin_op', 'uuid': get_uuid(), 'left': p[1], 'op': p[2], 'right': p[3]}
 
 
-def p_div(p):
-    """bin_op : operand DIV operand"""
-    p[0] = {'type': 'bin_op', 'uuid': get_uuid(), 'left': p[1], 'op': p[2], 'right': p[3]}
+def p_expr2uminus(p):
+    'bin_op : MINUS bin_op %prec UMINUS'
+    p[0] = {'type': 'unary_op', 'uuid': get_uuid(), 'op': 'usub', 'operand': p[2]}
 
 
-def p_simple_bin_ops(p):
-    """bin_op : operand TIMES operand
-            |   operand MINUS operand
-            |   operand PLUS operand"""
-    p[0] = {'type': 'bin_op', 'uuid': get_uuid(), 'left': p[1], 'op': p[2], 'right': p[3]}
+def p_parens(p):
+    'bin_op : LPAREN bin_op RPAREN'
+    p[0] = p[2]
 
 
-def p_minus_operand(p):
-    """operand : MINUS operand"""
+def p_operand_ident(p):
+    """bin_op : IDENT"""
+    p[0] = {**p[1], 'ctx': 'load'}
 
 
-def p_operand(p):
-    """operand : NUM
-            | IDENT"""
+def p_operand_num(p):
+    """bin_op : NUM"""
     p[0] = p[1]
 
 
@@ -125,11 +129,5 @@ def p_error(p):
     print("Syntax error in input!")
     print(str(p))
 
-
-precedence = (
-    ('left', 'PLUS', 'MINUS'),
-    ('left', 'TIMES', 'DIV'),
-    ('nonassoc', 'MINUS')
-)
 
 parser = yacc.yacc()

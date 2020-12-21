@@ -9,7 +9,7 @@ def main():
         transformed_ast = transformation.get_transformed_ast(code)
 
         renderer = visualizing.GraphRenderer()
-        renderer.render(data=transformed_ast, file_name='py_native_result.gv', label=input_file)
+        renderer.render(data=transformed_ast, file_name='py_native_result', label=input_file)
 
 
 if __name__ == '__main__':

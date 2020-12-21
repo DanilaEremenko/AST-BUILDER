@@ -1,16 +1,8 @@
-from uuid import uuid1
 from graphviz import Digraph
 
+from ast_dict_getters import get_uuid
+
 LIST_STR = '[list]'
-
-RANDOM = 0
-
-
-def get_uuid():
-    # return uuid1().hex # TODO excuse me???
-    global RANDOM
-    RANDOM += 1
-    return str(RANDOM)
 
 
 def draw_and_connect(ast_digraph: Digraph, parent_uuid, child_uuid, child_name, connect_name):

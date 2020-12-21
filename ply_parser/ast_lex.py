@@ -1,4 +1,4 @@
-from ast_graphviz import get_uuid
+from ast_dict_getters import get_str_dict, get_ident_dict, get_empty_node_dict
 from ply import lex
 import re
 
@@ -67,7 +67,7 @@ t_COMMA = r'\,'
 def t_BIN_OPS(t):
     r'\-|\+|\*|\/|\&|\|'
     t.type = reserved[t.value]
-    t.value = {'type': t.type.lower(), 'uuid': get_uuid()}
+    t.value = get_empty_node_dict(type=t.type.lower())
     return t
 
 
@@ -87,20 +87,20 @@ def t_IDENT(t):
     r'[a-zA-Z]+[_a-zA-Z0-9]*'
     if t.value in reserved:
         t.type = reserved[t.value]
-    t.value = {'type': 'ident', 'uuid': get_uuid(), 'id': t.value, 'ctx': 'store'}
+    t.value = get_ident_dict(id=t.value, ctx='store')
     return t
 
 
 # TYPES
 def t_NUM(t):
     r'[0-9]+'
-    t.value = {'type': 'num', 'uuid': get_uuid(), 'n': int(t.value)}
+    t.value = get_str_dict(int(t.value))
     return t
 
 
 def t_STR(t):
     r'\'[_a-zA-Z][_a-zA-Z0-9]\'|\"[_a-zA-Z][_a-zA-Z0-9]\"'
-    t.value = {'type': 'str', 'uuid': get_uuid(), 'str': t.value}
+    t.value = get_str_dict(str_val=t.value)
     return t
 
 

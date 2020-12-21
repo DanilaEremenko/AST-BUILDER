@@ -1,10 +1,11 @@
+from ast_dict_getters import get_bin_op_dict
 from ast_lex import tokens
 from ast_graphviz import get_uuid
 import ply.yacc as yacc
 
 precedence = (
-    ('left', 'PLUS', 'MINUS'),
-    ('left', 'TIMES', 'DIV'),
+    ('left', 'PLUS', 'MINUS', 'OR'),
+    ('left', 'TIMES', 'DIV', 'AND'),
     ('nonassoc', 'UMINUS')
 )
 
@@ -47,13 +48,13 @@ def p_compare_op(p):
 def p_div_bin_op_with_bin_op(p):
     """bin_op : bin_op TIMES bin_op
             |   bin_op DIV bin_op"""
-    p[0] = {'type': 'bin_op', 'uuid': get_uuid(), 'left': p[1], 'op': p[2], 'right': p[3]}
+    p[0] = get_bin_op_dict(left=p[1], op=p[2], right=p[3])
 
 
 def p_bin_op_with_bin_op(p):
     """bin_op : bin_op MINUS bin_op
             |   bin_op PLUS bin_op"""
-    p[0] = {'type': 'bin_op', 'uuid': get_uuid(), 'left': p[1], 'op': p[2], 'right': p[3]}
+    p[0] = get_bin_op_dict(left=p[1], op=p[2], right=p[3])
 
 
 def p_expr2uminus(p):
@@ -79,14 +80,18 @@ def p_operand_num(p):
 #############################################################
 # ---------------------- SET VALUE --------------------------
 #############################################################
-def p_set_value(p):
-    """set_value : ident_list EQUAL value_list"""
-    p[0] = {
+def get_set_value_dict(targets, values):
+    return {
         'type': 'assign',
         'uuid': get_uuid(),
-        'targets': p[1],
-        'values': p[3]
+        'targets': targets,
+        'values': values
     }
+
+
+def p_set_value(p):
+    """set_value : ident_list EQUAL value_list"""
+    p[0] = get_set_value_dict(targets=p[1], values=p[3])
 
 
 def p_value_list(p):

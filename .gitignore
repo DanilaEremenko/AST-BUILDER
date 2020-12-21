@@ -2,5 +2,5 @@
 Digraph.gv
 Digraph.gv.pdf
 __pycache__
-ply_parser/parsetab.py
-ply_parser/parser.out
+*.gv
+*.pdf

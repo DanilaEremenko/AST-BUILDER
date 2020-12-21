@@ -24,7 +24,6 @@ def p_lines(p):
 
 def p_line(p):
     """line : set_value
-            | expr
             | COMMENT
     """
     p[0] = p[1]
@@ -42,22 +41,9 @@ def p_compare_op(p):
                 | OR"""
 
 
-def p_COMPARE_TO_EXPR(p):
-    """expr : expr compare_op expr"""
-
-
-def p_PARENS_TO_EXPR(p):
-    """expr : LPAREN expr RPAREN"""
-
-
 #############################################################
 # ---------------------- BIN_OP -----------------------------
 #############################################################
-def p_bin_ops_to_expr(p):
-    """expr : bin_op"""
-    p[0] = {'type': 'expression', 'uuid': get_uuid(), 'val': p[1]}
-
-
 def p_div_bin_op_with_bin_op(p):
     """bin_op : bin_op TIMES bin_op
             |   bin_op DIV bin_op"""
@@ -104,10 +90,8 @@ def p_set_value(p):
 
 
 def p_value_list(p):
-    """value_list : value_list  COMMA IDENT
-                    | value_list  COMMA NUM
-                    | IDENT
-                    | NUM
+    """value_list : value_list COMMA bin_op
+                    | bin_op
                 """
     if len(p) == 2:
         p[0] = [p[1]]

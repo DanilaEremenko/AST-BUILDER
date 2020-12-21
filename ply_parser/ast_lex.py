@@ -1,3 +1,4 @@
+from ast_graphviz import get_uuid
 from ply import lex
 import re
 
@@ -45,8 +46,6 @@ tokens = (
 # COMMON
 t_ignore = ' \t'
 
-t_COMMENT = r'\#.*'
-
 # MATH
 t_COMMA = r'\,'
 t_PLUS = r'\+'
@@ -70,24 +69,29 @@ reserved = {
 }
 
 
+def t_COMMENT(t):
+    r'\#.*'
+    t.value = 'COMMENT'
+
+
 def t_IDENT(t):
     r'[a-zA-Z]+[_a-zA-Z0-9]*'
     if t.value in reserved:
         t.type = reserved[t.value]
-    t.value = {'id': t.value, 'ctx': 'store'}
+    t.value = {'type': 'ident', 'uuid': get_uuid(), 'id': t.value, 'ctx': 'store'}
     return t
 
 
 # TYPES
 def t_NUM(t):
     r'[0-9]+'
-    t.value = {'n': int(t.value)}
+    t.value = {'type': 'num', 'uuid': get_uuid(), 'n': int(t.value)}
     return t
 
 
 def t_STR(t):
     r'\'[_a-zA-Z][_a-zA-Z0-9]\'|\"[_a-zA-Z][_a-zA-Z0-9]\"'
-    t.value = {'str': t.value}
+    t.value = {'type': 'str', 'uuid': get_uuid(), 'str': t.value}
     return t
 
 

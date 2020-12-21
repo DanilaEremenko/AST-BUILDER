@@ -1,24 +1,21 @@
 from ast_lex import tokens
+from ast_graphviz import get_uuid
 import ply.yacc as yacc
 
 
 #######################################################################
 # --------------------------- YACC ------------------------------------
 #######################################################################
-def p_module(p):
-    """module : lines"""
-    p[0] = {'who': 'me'}
-
-
-def p_body(p):
-    """body : LBRACE lines RBRACE"""
-    p[0] = p[2]
-
-
 def p_lines(p):
     """lines : lines line
             | line
     """
+    if type(p[0]) == str:
+        pass
+    elif len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [*p[1], p[3]]
 
 
 def p_line(p):
@@ -28,6 +25,7 @@ def p_line(p):
             | condition_expr
             | COMMENT
     """
+    p[0] = p[1]
 
 
 def p_condition_expr(p):
@@ -44,9 +42,9 @@ def p_while_expr(p):
     """
 
 
-def p_set_value(p):
-    """set_value : IDENT EQUAL NUM"""
-    p[0] = p[3]
+def p_body(p):
+    """body : LBRACE lines RBRACE"""
+    p[0] = p[2]
 
 
 def p_add(p):
@@ -69,26 +67,36 @@ def p_SIGNMINUS_TO_EXPR(p):
     """expr : MINUS expr %prec UMINUS"""
 
 
-def p_VALUE_LIST(p):
-    """p_VALUE_LIST : ident_list  COMMA IDENT
-                    | ident_list  COMMA NUM
+def p_set_value(p):
+    """set_value : ident_list EQUAL value_list"""
+    p[0] = {
+        'type': 'assign',
+        'uuid': get_uuid(),
+        'targets': p[1],
+        'values': p[3]
+    }
+
+
+def p_value_list(p):
+    """value_list : value_list  COMMA IDENT
+                    | value_list  COMMA NUM
                     | IDENT
                     | NUM
                 """
     if len(p) == 2:
         p[0] = [p[1]]
     else:
-        p[0].append(p[3])
+        p[0] = [*p[1], p[3]]
 
 
-def p_IDENT_LIST(p):
+def p_ident_list(p):
     """ident_list : ident_list  COMMA IDENT
-                | IDENT
-            """
+                    | IDENT
+                """
     if len(p) == 2:
         p[0] = [p[1]]
     else:
-        p[0].append(p[3])
+        p[0] = [*p[1], p[3]]
 
 
 def p_NUM_TO_EXPR(p):

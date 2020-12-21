@@ -2,9 +2,14 @@ from uuid import uuid1
 
 LIST_STR = '[list]'
 
+RANDOM = 0
+
 
 def get_uuid():
-    return uuid1().hex
+    # return uuid1().hex # TODO excuse me???
+    global RANDOM
+    RANDOM += 1
+    return str(RANDOM)
 
 
 def draw_and_connect(ast_gv_str, parent_uuid, child_uuid, child_name, connect_name):
@@ -42,6 +47,7 @@ def dict_to_gv_recurs(ast_dict, ast_gv_res):
 
     for key, value in ast_dict.items():
         if type(value) == list:
+            # draw [list] node
             new_list_uuid = draw_and_connect(
                 ast_gv_str=ast_gv_res,
                 parent_uuid=ast_dict['uuid'],
@@ -51,7 +57,7 @@ def dict_to_gv_recurs(ast_dict, ast_gv_res):
             )
 
             for i, list_elem in enumerate(value):
-                # create element if list
+                # create elements if list
                 draw_and_connect(
                     ast_gv_str=ast_gv_res,
                     parent_uuid=new_list_uuid,

@@ -78,7 +78,14 @@ def dict_to_gv_recurs(ast_dict, ast_digraph: Digraph):
             pass
 
         elif type(value) == dict:
-            raise Exception('Wha?')
+            draw_and_connect(
+                ast_digraph=ast_digraph,
+                parent_uuid=ast_dict['uuid'],
+                child_uuid=value['uuid'],
+                child_name=value['type'],
+                connect_name=key
+            )
+            dict_to_gv_recurs(value, ast_digraph)
 
         else:
             raise Exception('Wha?')

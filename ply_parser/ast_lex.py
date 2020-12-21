@@ -26,47 +26,56 @@ tokens = (
     # TYPES
     'NUM',
 
-    # BODY
-    'LBRACE',
-    'RBRACE',
+    # # BODY
+    # 'LBRACE',
+    # 'RBRACE',
     'LPAREN',
     'RPAREN',
-
-    # OPERATORS
-    'WHILE',
-    'IF',
-    'ELSE',
-    'ELIF',
+    #
+    # # OPERATORS
+    # 'WHILE',
+    # 'IF',
+    # 'ELSE',
+    # 'ELIF',
 
     # COMMENT
-    'COMMENT'
+    'COMMENT',
+    'NEXT_LINE'
 
 )
+
+reserved = {
+    'while': 'WHILE',
+    'if': 'IF',
+    'elif': 'ELIF',
+    'else': 'ELSE',
+    '+': 'PLUS',
+    '-': 'TIMES',
+    '*': 'TIMES',
+    '/': 'DIV',
+    '&': 'AND',
+    '|': 'OR',
+}
 
 # COMMON
 t_ignore = ' \t'
 
 # MATH
 t_COMMA = r'\,'
-t_PLUS = r'\+'
-t_MINUS = r'\-'
-t_TIMES = r'\*'
-t_DIV = r'\/'
-t_AND = r'\&'
-t_OR = r'\|'
+
+
+def t_BIN_OPS(t):
+    r'\-|\+|\*|\/|\&|\|'
+    t.type = reserved[t.value]
+    t.value = {'type': t.type.lower(), 'uuid': get_uuid()}
+    return t
+
 
 # COMPARE
 t_LESS = r'\<'
 t_MORE = r'\>'
 t_NOT = r'\!'
 t_EQUAL = r'\='
-
-reserved = {
-    'while': 'WHILE',
-    'if': 'IF',
-    'elif': 'ELIF',
-    'else': 'ELSE'
-}
 
 
 def t_COMMENT(t):
@@ -96,16 +105,17 @@ def t_STR(t):
 
 
 # BODY
-t_LBRACE = r'\{'
-t_RBRACE = r'\}'
+# t_LBRACE = r'\{'
+# t_RBRACE = r'\}'
+#
+# t_LPAREN = r'\('
+# t_RPAREN = r'\)'
 
-t_LPAREN = r'\('
-t_RPAREN = r'\)'
 
-
-def t_newline(t):
+def t_NEXT_LINE(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
+    return t
 
 
 def t_error(t):

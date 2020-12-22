@@ -4,8 +4,8 @@ from ast_graphviz import get_uuid
 import ply.yacc as yacc
 
 precedence = (
-    ('left', 'PLUS', 'MINUS'),
-    ('left', 'TIMES', 'DIV'),
+    ('left', 'PLUS', 'MINUS', 'OR'),
+    ('left', 'TIMES', 'DIV', 'AND'),
     ('nonassoc', 'UMINUS')
 )
 
@@ -131,12 +131,12 @@ def p_else_block(p):
 
 def p_bool_or(p):
     """bool_compare : bool_operand AND bool_operand"""
-    p[0] = get_bool_op_dict(op='or', values=[])
+    p[0] = get_bool_op_dict(op='and', values=[p[1], p[3]])
 
 
 def p_bool_and(p):
     """bool_compare : bool_operand OR bool_operand"""
-    p[0] = get_bool_op_dict(op='and', values=[])
+    p[0] = get_bool_op_dict(op='or', values=[p[1], p[3]])
 
 
 def p_bool_operand(p):

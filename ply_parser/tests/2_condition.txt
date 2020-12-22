@@ -1,4 +1,13 @@
-if (5 < 7 > 10 != 13 == 15){
-    a = 5
-    b = 6
+if 5 < 7 > 10 != 13 == 15{
+    print('state 1')
+    state = 1
 }
+elif 5 < 7 and 5 > 10 or a == 15{
+    print('state 2')
+    state = 2
+}
+else{
+    print('state 3')
+    state = 3
+}
+print('final code')

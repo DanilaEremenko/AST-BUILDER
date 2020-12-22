@@ -39,6 +39,11 @@ def get_set_value_dict(targets: list, values: list, uuid=None):
     return {'type': 'assign', 'uuid': uuid, 'targets': targets, 'values': values}
 
 
+def get_func_call_dict(func, args: list, keywords: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'func_call', 'uuid': uuid, 'func': func, 'args': args, 'keywords': keywords}
+
+
 def get_ident_dict(id, ctx, uuid=None):
     if uuid is None: uuid = get_uuid()
     return {'type': 'ident', 'uuid': uuid, 'id': id, 'ctx': ctx}
@@ -49,6 +54,6 @@ def get_num_dict(n, uuid=None):
     return {'type': 'num', 'uuid': uuid, 'n': n}
 
 
-def get_str_dict(str_val, uuid=None):
+def get_str_dict(s, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'num', 'uuid': uuid, 'n': str_val}
+    return {'type': 'str', 'uuid': uuid, 's': s}

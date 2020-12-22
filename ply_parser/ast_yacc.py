@@ -13,18 +13,12 @@ precedence = (
 #######################################################################
 # --------------------------- YACC ------------------------------------
 #######################################################################
-def p_statements_trash(p):
-    """statements : statements NEWLINE
-    """
-    p[0] = p[1]
-
-
 def p_statements(p):
     """statements : statements statement
                 |   statement
     """
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = [p[1]]
     else:
         p[0] = [*p[1], p[2]]
 
@@ -46,6 +40,7 @@ def p_compound_stmt(p):
 def p_simple_stmt(p):
     """simple_stmt : simple_stmt small_stmt NEWLINE
                 |    small_stmt NEWLINE
+                |    small_stmt
     """
     if len(p) == 4:
         if type(p[1]) == list:
@@ -58,6 +53,7 @@ def p_simple_stmt(p):
 
 def p_small_stmt(p):
     """small_stmt : set_value
+                |  func_call
                 |  PASS
                 |  BREAK
                 |  CONTINUE
@@ -66,28 +62,39 @@ def p_small_stmt(p):
 
 
 def p_block(p):
-    """block : LBRACE statements RBRACE
-            |  LBRACE statements NEWLINE RBRACE
-            |  NEWLINE LBRACE statements RBRACE
-            |  NEWLINE LBRACE  statements NEWLINE RBRACE
-            |  LBRACE  NEWLINE statements RBRACE
-            |  LBRACE  NEWLINE statements NEWLINE RBRACE
-            |  NEWLINE LBRACE  NEWLINE statements RBRACE
-            |  NEWLINE LBRACE  NEWLINE statements NEWLINE RBRACE
-            |  simple_stmt
+    """block : lbrace_stmt statements rbrace_stmt
+            |  lbrace_stmt statement rbrace_stmt
     """
-    for token in p:
-        if type(token) == list:
-            p[0] = token
-            break
+    if type(p[2]) == list:
+        p[0] = p[2]
+    elif type(p[2] == dict):
+        p[0] = [p[2]]
+    else:
+        raise Exception('Unexpected state')
+
+
+def p_lbrace_stmt(p):
+    """
+    lbrace_stmt : NEWLINE LBRACE
+                | LBRACE NEWLINE
+                | LBRACE
+    """
+
+
+def p_rbrace_stmt(p):
+    """
+    rbrace_stmt : NEWLINE RBRACE
+                | RBRACE NEWLINE
+                | RBRACE
+    """
 
 
 #############################################################
 # ---------------------- WHILE ------------------------------
 #############################################################
 def p_while_stmt(p):
-    """while_stmt : WHILE compare_chain ':' block else_block
-                |   WHILE compare_chain ':' block
+    """while_stmt : WHILE bool_operand ':' block else_block
+                |   WHILE bool_operand ':' block
     """
 
 
@@ -95,9 +102,9 @@ def p_while_stmt(p):
 # ---------------------- CONDITION --------------------------
 #############################################################
 def p_if_stmt(p):
-    """if_stmt : IF compare_chain block elif_stmt
-            |    IF compare_chain block else_block
-            |    IF compare_chain block
+    """if_stmt : IF bool_operand block elif_stmt
+            |    IF bool_operand block else_block
+            |    IF bool_operand block
     """
     if len(p) == 5:
         p[0] = get_if_dict(test=p[2], body=p[3], orelse=p[4])
@@ -106,15 +113,38 @@ def p_if_stmt(p):
 
 
 def p_elif_stmt(p):
-    """elif_stmt : ELIF compare_chain ':' block elif_stmt
-            |      ELIF compare_chain ':' block else_block
-            |      ELIF compare_chain ':' block
+    """elif_stmt : ELIF bool_operand block elif_stmt
+            |    ELIF bool_operand block else_block
+            |    ELIF bool_operand block
     """
+    if len(p) == 5:
+        p[0] = get_if_dict(test=p[2], body=p[3], orelse=p[4])
+    else:
+        p[0] = get_if_dict(test=p[2], body=p[3], orelse=[])
 
 
 def p_else_block(p):
-    """else_block : ELSE ':' block
+    """else_block : ELSE block
     """
+    p[0] = p[2]
+
+
+def p_bool_or(p):
+    """bool_compare : bool_operand AND bool_operand"""
+    p[0] = get_bool_op_dict(op='or', values=[])
+
+
+def p_bool_and(p):
+    """bool_compare : bool_operand OR bool_operand"""
+    p[0] = get_bool_op_dict(op='and', values=[])
+
+
+def p_bool_operand(p):
+    """bool_operand : compare_chain
+                    | bool_compare
+                    | IDENT
+                    | NUM"""
+    p[0] = p[1]
 
 
 def p_compare_chain_add(p):
@@ -166,6 +196,11 @@ def p_parens(p):
     p[0] = p[2]
 
 
+def p_operand_func_call(p):
+    """bin_op : func_call"""
+    p[0] = {**p[1], 'ctx': 'load'}
+
+
 def p_operand_ident(p):
     """bin_op : IDENT"""
     p[0] = {**p[1], 'ctx': 'load'}
@@ -173,6 +208,31 @@ def p_operand_ident(p):
 
 def p_operand_num(p):
     """bin_op : NUM"""
+    p[0] = p[1]
+
+
+#############################################################
+# ---------------------- FUNC_CALL --------------------------
+#############################################################
+def p_func_call(p):
+    """func_call : IDENT LPAREN func_args RPAREN"""
+    p[0] = get_func_call_dict(func=p[1]['id'], args=p[3], keywords=[])
+
+
+def p_args(p):
+    """func_args : func_args COMMA func_arg
+                |  func_arg"""
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [*p[1], p[3]]
+
+
+def p_arg(p):
+    """func_arg : IDENT
+            |     STR
+            |     NUM
+            |     func_call"""
     p[0] = p[1]
 
 

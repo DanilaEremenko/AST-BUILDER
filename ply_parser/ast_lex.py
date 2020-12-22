@@ -8,11 +8,15 @@ import re
 tokens = (
     'IDENT',
 
+    # LOGIC
+    'AND',
+    'OR',
     # BINARY_OP
     'PLUS',
     'MINUS',
     'TIMES',
     'DIV',
+
     'LPAREN',
     'RPAREN',
 
@@ -22,6 +26,7 @@ tokens = (
 
     # TYPES
     'NUM',
+    'STR',
 
     # BODY
     'LBRACE',
@@ -62,6 +67,9 @@ reserved = {
     'break': 'BREAK',
     'continue': 'CONTINUE',
 
+    'and': 'AND',
+    'or': 'OR',
+
     '+': 'PLUS',
     '-': 'MINUS',
     '*': 'TIMES',
@@ -101,6 +109,10 @@ def t_COMPARE_OPS(t):
 
 
 t_EQUAL_SET = r'\='
+
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
+
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
 
@@ -121,13 +133,13 @@ def t_IDENT(t):
 # TYPES
 def t_NUM(t):
     r'[0-9]+'
-    t.value = get_num_dict(int(t.value))
+    t.value = get_num_dict(n=int(t.value))
     return t
 
 
 def t_STR(t):
-    r'\'[_a-zA-Z][_a-zA-Z0-9]\'|\"[_a-zA-Z][_a-zA-Z0-9]\"'
-    t.value = get_str_dict(str_val=t.value)
+    r'\".+\"|\'.+\''
+    t.value = get_str_dict(s=t.value[1:-1])
     return t
 
 

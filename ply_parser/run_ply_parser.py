@@ -4,6 +4,7 @@ from ast_graphviz import ast_dict_to_gv, get_uuid
 if __name__ == '__main__':
     with open('tests/1_assign.txt') as input_fp:
         input_code = input_fp.read()
+    input_code += '\n'
 
     ast_lines_dict = parser.parse(input_code, debug=True)  # the input
     ast_dict = {

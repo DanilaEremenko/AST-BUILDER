@@ -14,6 +14,26 @@ def get_empty_node_dict(type, uuid=None):
     return {'type': type, 'uuid': uuid}
 
 
+def get_list_comprehension_dict(operation, generators: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'list_comprehension', 'uuid': uuid, 'operation': operation, 'generators': generators}
+
+
+def get_comprehension(target, iter, ifs: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'comprehension', 'uuid': uuid, 'target': target, 'iter': iter, 'ifs': ifs}  # TODO is async
+
+
+def get_list(values: list, ctx, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'list', 'uuid': uuid, 'values': values, 'ctx': ctx}
+
+
+def get_while_dict(test, body: list, orelse: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'while', 'uuid': uuid, 'test': test, 'body': body, 'orelse': orelse}
+
+
 def get_if_dict(test, body: list, orelse: list, uuid=None):
     if uuid is None: uuid = get_uuid()
     return {'type': 'if', 'uuid': uuid, 'test': test, 'body': body, 'orelse': orelse}

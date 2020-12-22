@@ -11,6 +11,7 @@ tokens = (
     # LOGIC
     'AND',
     'OR',
+
     # BINARY_OP
     'PLUS',
     'MINUS',
@@ -19,6 +20,9 @@ tokens = (
 
     'LPAREN',
     'RPAREN',
+
+    'LBRACKET',
+    'RBRACKET',
 
     # SET VALUE
     'COMMA',
@@ -33,6 +37,7 @@ tokens = (
     'RBRACE',
 
     # OPERATORS
+    'FOR',
     'WHILE',
     'IF',
     'ELSE',
@@ -41,6 +46,7 @@ tokens = (
     'PASS',
     'BREAK',
     'CONTINUE',
+    'IN',
 
     # COMMENT
     'COMMENT',
@@ -57,6 +63,7 @@ tokens = (
 )
 
 reserved = {
+    'for': 'FOR',
     'while': 'WHILE',
 
     'if': 'IF',
@@ -66,6 +73,7 @@ reserved = {
     'pass': 'PASS',
     'break': 'BREAK',
     'continue': 'CONTINUE',
+    'in': 'IN',
 
     'and': 'AND',
     'or': 'OR',
@@ -112,6 +120,9 @@ t_EQUAL_SET = r'\='
 
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
 
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'

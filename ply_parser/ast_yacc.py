@@ -38,9 +38,7 @@ def p_compound_stmt(p):
 
 
 def p_simple_stmt(p):
-    """simple_stmt : simple_stmt small_stmt NEWLINE
-                |    small_stmt NEWLINE
-                |    small_stmt
+    """simple_stmt : small_stmt NEWLINE
     """
     if len(p) == 4:
         if type(p[1]) == list:
@@ -61,6 +59,9 @@ def p_small_stmt(p):
     p[0] = p[1]
 
 
+#############################################################
+# ---------------------- BLOCK ------------------------------
+#############################################################
 def p_block(p):
     """block : lbrace_stmt statements rbrace_stmt
             |  lbrace_stmt statement rbrace_stmt
@@ -90,12 +91,69 @@ def p_rbrace_stmt(p):
 
 
 #############################################################
+# ---------------------- COMPREHENSION ----------------------
+#############################################################
+def p_list_comprehension(p):
+    """list_comprehension : LBRACKET bin_op comprehensions RBRACKET
+                        |   LBRACKET bool_operand comprehensions RBRACKET
+    """
+    p[0] = get_list_comprehension_dict(operation=p[2], generators=p[3])
+
+
+def p_comprehension_list(p):
+    """
+    comprehensions : comprehensions comprehension
+                    |    comprehension
+    """
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [*p[1], p[2]]
+
+
+def p_comprehension(p):
+    """
+    comprehension : FOR IDENT IN func_call ifs_sequence
+                |   FOR IDENT IN func_call
+    """
+    p[2]['ctx'] = 'load'
+    if len(p) == 6:
+        p[0] = get_comprehension(target=p[2], iter=p[4], ifs=p[5])
+    else:
+        p[0] = get_comprehension(target=p[2], iter=p[4], ifs=[])
+
+
+def p_ifs_sequence(p):
+    """
+        ifs_sequence : ifs_sequence IF bool_operand
+                    |  IF bool_operand
+    """
+    if len(p) == 3:
+        p[0] = [p[2]]
+    else:
+        p[0] = [*p[1], p[3]]
+
+
+#############################################################
+# ---------------------- COLLECTIONS ------------------------
+#############################################################
+def p_collection_init(p):
+    """collection_init : list_init"""
+    p[0] = p[1]
+
+
+def p_list_init(p):
+    """list_init : LBRACKET value_list RBRACKET"""
+    p[0] = get_list(values=p[2], ctx='load')
+
+
+#############################################################
 # ---------------------- WHILE ------------------------------
 #############################################################
 def p_while_stmt(p):
-    """while_stmt : WHILE bool_operand ':' block else_block
-                |   WHILE bool_operand ':' block
+    """while_stmt : WHILE bool_operand block
     """
+    p[0] = get_while_dict(test=p[2], body=p[3], orelse=[])
 
 
 #############################################################
@@ -247,6 +305,8 @@ def p_set_value(p):
 def p_value_list(p):
     """value_list : value_list COMMA bin_op
                     | bin_op
+                    | collection_init
+                    | list_comprehension
                 """
     if len(p) == 2:
         p[0] = [p[1]]

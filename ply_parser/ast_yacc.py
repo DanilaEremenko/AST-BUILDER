@@ -1,11 +1,11 @@
-from ast_dict_getters import get_bin_op_dict
+from ast_dict_getters import *
 from ast_lex import tokens
 from ast_graphviz import get_uuid
 import ply.yacc as yacc
 
 precedence = (
-    ('left', 'PLUS', 'MINUS', 'OR'),
-    ('left', 'TIMES', 'DIV', 'AND'),
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIV'),
     ('nonassoc', 'UMINUS')
 )
 
@@ -13,33 +13,132 @@ precedence = (
 #######################################################################
 # --------------------------- YACC ------------------------------------
 #######################################################################
-def p_lines(p):
-    """lines : lines NEXT_LINE line
-            | line
-    """
-    if len(p) == 2:
-        p[0] = [p[1]]
-    else:
-        p[0] = [*p[1], p[3]]
-
-
-def p_line(p):
-    """line : set_value
-            | COMMENT
+def p_statements_trash(p):
+    """statements : statements NEWLINE
     """
     p[0] = p[1]
 
 
+def p_statements(p):
+    """statements : statements statement
+                |   statement
+    """
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = [*p[1], p[2]]
+
+
+def p_statement(p):
+    """statement : compound_stmt
+                |  simple_stmt
+    """
+    p[0] = p[1]
+
+
+def p_compound_stmt(p):
+    """compound_stmt : if_stmt
+                |      while_stmt
+    """
+    p[0] = p[1]
+
+
+def p_simple_stmt(p):
+    """simple_stmt : simple_stmt small_stmt NEWLINE
+                |    small_stmt NEWLINE
+    """
+    if len(p) == 4:
+        if type(p[1]) == list:
+            p[0] = [*p[1], p[2]]
+        elif type(p[1]) == dict:
+            p[0] = [p[1], p[2]]
+    else:
+        p[0] = p[1]
+
+
+def p_small_stmt(p):
+    """small_stmt : set_value
+                |  PASS
+                |  BREAK
+                |  CONTINUE
+    """
+    p[0] = p[1]
+
+
+def p_block(p):
+    """block : LBRACE statements RBRACE
+            |  LBRACE statements NEWLINE RBRACE
+            |  NEWLINE LBRACE statements RBRACE
+            |  NEWLINE LBRACE  statements NEWLINE RBRACE
+            |  LBRACE  NEWLINE statements RBRACE
+            |  LBRACE  NEWLINE statements NEWLINE RBRACE
+            |  NEWLINE LBRACE  NEWLINE statements RBRACE
+            |  NEWLINE LBRACE  NEWLINE statements NEWLINE RBRACE
+            |  simple_stmt
+    """
+    for token in p:
+        if type(token) == list:
+            p[0] = token
+            break
+
+
 #############################################################
-# ---------------------- COMPARE ----------------------------
+# ---------------------- WHILE ------------------------------
 #############################################################
-def p_compare_op(p):
-    """compare_op : LESS
-                | MORE
-                | NOT EQUAL
-                | EQUAL EQUAL
-                | AND
-                | OR"""
+def p_while_stmt(p):
+    """while_stmt : WHILE compare_chain ':' block else_block
+                |   WHILE compare_chain ':' block
+    """
+
+
+#############################################################
+# ---------------------- CONDITION --------------------------
+#############################################################
+def p_if_stmt(p):
+    """if_stmt : IF compare_chain block elif_stmt
+            |    IF compare_chain block else_block
+            |    IF compare_chain block
+    """
+    if len(p) == 5:
+        p[0] = get_if_dict(test=p[2], body=p[3], orelse=p[4])
+    else:
+        p[0] = get_if_dict(test=p[2], body=p[3], orelse=[])
+
+
+def p_elif_stmt(p):
+    """elif_stmt : ELIF compare_chain ':' block elif_stmt
+            |      ELIF compare_chain ':' block else_block
+            |      ELIF compare_chain ':' block
+    """
+
+
+def p_else_block(p):
+    """else_block : ELSE ':' block
+    """
+
+
+def p_compare_chain_add(p):
+    """compare_chain : compare_chain LT bin_op
+                   |   compare_chain GT bin_op
+                   |   compare_chain LT_EQ bin_op
+                   |   compare_chain GT_EQ bin_op
+                   |   compare_chain NOT_EQ bin_op
+                   |   compare_chain EQ bin_op
+     """
+    p[0] = {**p[1]}
+    p[0]['ops'].append(p[2])
+    p[0]['comparators'].append(p[3])
+
+
+def p_compare_chain_init(p):
+    """compare_chain : bin_op LT bin_op
+                   |   bin_op GT bin_op
+                   |   bin_op LT_EQ bin_op
+                   |   bin_op GT_EQ bin_op
+                   |   bin_op NOT_EQ bin_op
+                   |   bin_op EQ bin_op
+     """
+    p[0] = get_compare_dict(left=p[1], ops=[p[2]], comparators=[p[3]])
 
 
 #############################################################
@@ -80,17 +179,8 @@ def p_operand_num(p):
 #############################################################
 # ---------------------- SET VALUE --------------------------
 #############################################################
-def get_set_value_dict(targets, values):
-    return {
-        'type': 'assign',
-        'uuid': get_uuid(),
-        'targets': targets,
-        'values': values
-    }
-
-
 def p_set_value(p):
-    """set_value : ident_list EQUAL value_list"""
+    """set_value : ident_list EQUAL_SET value_list"""
     p[0] = get_set_value_dict(targets=p[1], values=p[3])
 
 

@@ -69,6 +69,7 @@ def dict_to_gv_recurs(ast_dict: dict, ast_digraph: Digraph):
 
 def ast_dict_to_gv(ast_dict):
     ast_digraph = Digraph(format='pdf')
+    ast_digraph.node(name=ast_dict['uuid'], label=ast_dict['type'])
     dict_to_gv_recurs(ast_dict=ast_dict, ast_digraph=ast_digraph)
     return ast_digraph
 

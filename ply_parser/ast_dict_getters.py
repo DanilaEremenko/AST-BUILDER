@@ -10,30 +10,45 @@ def get_uuid():
 
 
 def get_empty_node_dict(type, uuid=None):
-    if uuid is None:
-        uuid = get_uuid()
+    if uuid is None: uuid = get_uuid()
     return {'type': type, 'uuid': uuid}
 
 
+def get_if_dict(test, body: list, orelse: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'if', 'uuid': uuid, 'test': test, 'body': body, 'orelse': orelse}
+
+
+def get_bool_op_dict(op: str, values: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'bool_op', 'uuid': uuid, 'op': op, 'values': values}
+
+
+def get_compare_dict(left, ops: list, comparators: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'compare', 'uuid': uuid, 'left': left, 'ops': ops, 'comparators': comparators}
+
+
 def get_bin_op_dict(left, op, right, uuid=None):
-    if uuid is None:
-        uuid = get_uuid()
+    if uuid is None: uuid = get_uuid()
     return {'type': 'bin_op', 'uuid': uuid, 'left': left, 'op': op, 'right': right}
 
 
+def get_set_value_dict(targets: list, values: list, uuid=None):
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'assign', 'uuid': uuid, 'targets': targets, 'values': values}
+
+
 def get_ident_dict(id, ctx, uuid=None):
-    if uuid is None:
-        uuid = get_uuid()
+    if uuid is None: uuid = get_uuid()
     return {'type': 'ident', 'uuid': uuid, 'id': id, 'ctx': ctx}
 
 
 def get_num_dict(n, uuid=None):
-    if uuid is None:
-        uuid = get_uuid()
-    return {'type': 'str', 'uuid': uuid, 'n': n}
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'num', 'uuid': uuid, 'n': n}
 
 
 def get_str_dict(str_val, uuid=None):
-    if uuid is None:
-        uuid = get_uuid()
-    return {'type': 'num', 'uuid': uuid, 'str': str_val}
+    if uuid is None: uuid = get_uuid()
+    return {'type': 'num', 'uuid': uuid, 'n': str_val}

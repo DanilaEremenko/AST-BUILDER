@@ -1,4 +1,4 @@
-from ast_dict_getters import get_str_dict, get_ident_dict, get_empty_node_dict
+from ast_dict_getters import get_str_dict, get_ident_dict, get_empty_node_dict, get_num_dict
 from ply import lex
 import re
 
@@ -8,53 +8,74 @@ import re
 tokens = (
     'IDENT',
 
-    # MATH
-    'COMMA',
+    # BINARY_OP
     'PLUS',
     'MINUS',
     'TIMES',
     'DIV',
+    'LPAREN',
+    'RPAREN',
 
-    # COMPARE
-    'LESS',
-    'MORE',
-    'NOT',
-    'EQUAL',
-    'AND',
-    'OR',
+    # SET VALUE
+    'COMMA',
+    'EQUAL_SET',
 
     # TYPES
     'NUM',
 
-    # # BODY
-    # 'LBRACE',
-    # 'RBRACE',
-    'LPAREN',
-    'RPAREN',
-    #
-    # # OPERATORS
-    # 'WHILE',
-    # 'IF',
-    # 'ELSE',
-    # 'ELIF',
+    # BODY
+    'LBRACE',
+    'RBRACE',
+
+    # OPERATORS
+    'WHILE',
+    'IF',
+    'ELSE',
+    'ELIF',
+
+    'PASS',
+    'BREAK',
+    'CONTINUE',
 
     # COMMENT
     'COMMENT',
-    'NEXT_LINE'
+    'NEWLINE',
+
+    # COMPARE
+    'LT',
+    'GT',
+    'LT_EQ',
+    'GT_EQ',
+    'NOT_EQ',
+    'EQ'
 
 )
 
 reserved = {
     'while': 'WHILE',
+
     'if': 'IF',
     'elif': 'ELIF',
     'else': 'ELSE',
+
+    'pass': 'PASS',
+    'break': 'BREAK',
+    'continue': 'CONTINUE',
+
     '+': 'PLUS',
     '-': 'MINUS',
     '*': 'TIMES',
     '/': 'DIV',
     '&': 'AND',
     '|': 'OR',
+
+    '<': 'LT',
+    '>': 'GT',
+    '<=': 'LT_EQ',
+    '>=': 'GT_EQ',
+    '!=': 'NOT_EQ',
+    '==': 'EQ'
+
 }
 
 # COMMON
@@ -72,29 +93,35 @@ def t_BIN_OPS(t):
 
 
 # COMPARE
-t_LESS = r'\<'
-t_MORE = r'\>'
-t_NOT = r'\!'
-t_EQUAL = r'\='
+def t_COMPARE_OPS(t):
+    r'\<|\<=|\>|\>=|==|\!='
+    t.type = reserved[t.value]
+    t.value = get_empty_node_dict(type=t.type.lower())
+    return t
+
+
+t_EQUAL_SET = r'\='
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
 
 
 def t_COMMENT(t):
     r'\#.*'
-    t.value = 'COMMENT'
 
 
 def t_IDENT(t):
     r'[a-zA-Z]+[_a-zA-Z0-9]*'
     if t.value in reserved:
         t.type = reserved[t.value]
-    t.value = get_ident_dict(id=t.value, ctx='store')
+    else:
+        t.value = get_ident_dict(id=t.value, ctx='store')
     return t
 
 
 # TYPES
 def t_NUM(t):
     r'[0-9]+'
-    t.value = get_str_dict(int(t.value))
+    t.value = get_num_dict(int(t.value))
     return t
 
 
@@ -104,15 +131,7 @@ def t_STR(t):
     return t
 
 
-# BODY
-# t_LBRACE = r'\{'
-# t_RBRACE = r'\}'
-#
-# t_LPAREN = r'\('
-# t_RPAREN = r'\)'
-
-
-def t_NEXT_LINE(t):
+def t_NEWLINE(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
     return t

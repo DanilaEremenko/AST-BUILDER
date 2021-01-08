@@ -26,7 +26,8 @@ def get_comprehension(target, iter, ifs: list, uuid=None):
 
 def get_list(values: list, ctx, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'list', 'uuid': uuid, 'values': values, 'ctx': ctx}
+    # return {'type': 'list', 'uuid': uuid, 'values': values, 'ctx': ctx}
+    return {'type': 'list', 'uuid': uuid, 'values': values}
 
 
 def get_while_dict(test, body: list, orelse: list, uuid=None):
@@ -41,7 +42,8 @@ def get_if_dict(test, body: list, orelse: list, uuid=None):
 
 def get_bool_op_dict(op: str, values: list, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'bool_op', 'uuid': uuid, 'op': op, 'values': values}
+    # return {'type': 'bool_op', 'uuid': uuid, 'op': op, 'values': values}
+    return {'type': op, 'uuid': uuid, 'left': values[0], 'right': values[1]}
 
 
 def get_compare_dict(left, ops: list, comparators: list, uuid=None):
@@ -51,11 +53,14 @@ def get_compare_dict(left, ops: list, comparators: list, uuid=None):
 
 def get_bin_op_dict(left, op, right, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'bin_op', 'uuid': uuid, 'left': left, 'op': op, 'right': right}
+    # return {'type': 'bin_op', 'uuid': uuid, 'left': left, 'op': op, 'right': right}
+    return {'type': op['type'], 'uuid': uuid, 'left': left, 'right': right}
 
 
 def get_set_value_dict(targets: list, values: list, uuid=None):
     if uuid is None: uuid = get_uuid()
+    # res = []
+    # for target, value in zip(targets, values):
     return {'type': 'assign', 'uuid': uuid, 'targets': targets, 'values': values}
 
 
@@ -66,14 +71,17 @@ def get_func_call_dict(func, args: list, keywords: list, uuid=None):
 
 def get_ident_dict(id, ctx, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'ident', 'uuid': uuid, 'id': id, 'ctx': ctx}
+    # return {'type': 'ident', 'uuid': uuid, 'id': id, 'ctx': ctx}
+    return {'type': id, 'uuid': uuid}
 
 
 def get_num_dict(n, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'num', 'uuid': uuid, 'n': n}
+    # return {'type': 'num', 'uuid': uuid, 'n': n}
+    return {'type': str(n), 'uuid': uuid}
 
 
 def get_str_dict(s, uuid=None):
     if uuid is None: uuid = get_uuid()
-    return {'type': 'str', 'uuid': uuid, 's': s}
+    # return {'type': 'str', 'uuid': uuid, 's': s}
+    return {'type': s, 'uuid': uuid}

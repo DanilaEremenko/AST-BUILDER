@@ -12,8 +12,8 @@ def draw_and_connect(ast_digraph: Digraph, parent_uuid, child_uuid, child_name, 
         ast_digraph.node(name=child_uuid, label=child_name)
         ast_digraph.edge(tail_name=parent_uuid, head_name=child_uuid, label=connect_name)
         return child_uuid
-    except Exception():
-        print()
+    except Exception() as e:
+        draw_and_connect(ast_digraph)
 
 
 def dict_to_gv_recurs(ast_dict: dict, ast_digraph: Digraph):
@@ -24,7 +24,8 @@ def dict_to_gv_recurs(ast_dict: dict, ast_digraph: Digraph):
                 ast_digraph=ast_digraph,
                 parent_uuid=ast_dict['uuid'],
                 child_uuid=get_uuid(),
-                child_name=LIST_STR,
+                # child_name=LIST_STR,
+                child_name=key,
                 connect_name=key
             )
 
@@ -33,8 +34,10 @@ def dict_to_gv_recurs(ast_dict: dict, ast_digraph: Digraph):
                 draw_and_connect(
                     ast_digraph=ast_digraph,
                     parent_uuid=new_list_uuid,
+                    # parent_uuid=ast_dict['uuid'],
                     child_uuid=list_elem['uuid'],
                     child_name=list_elem['type'],
+                    # connect_name=key + " " + str(i)
                     connect_name=str(i)
                 )
                 # process child

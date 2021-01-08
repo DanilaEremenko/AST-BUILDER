@@ -116,7 +116,7 @@ def p_comprehension(p):
     comprehension : FOR IDENT IN func_call ifs_sequence
                 |   FOR IDENT IN func_call
     """
-    p[2]['ctx'] = 'load'
+    # p[2]['ctx'] = 'load'
     if len(p) == 6:
         p[0] = get_comprehension(target=p[2], iter=p[4], ifs=p[5])
     else:
@@ -246,7 +246,8 @@ def p_bin_op_with_bin_op(p):
 
 def p_expr2uminus(p):
     'bin_op : MINUS bin_op %prec UMINUS'
-    p[0] = {'type': 'unary_op', 'uuid': get_uuid(), 'op': 'usub', 'operand': p[2]}
+    # p[0] = {'type': 'unary_op', 'uuid': get_uuid(), 'op': 'usub', 'operand': p[2]}
+    p[0] = {'type': 'usub', 'uuid': get_uuid(), 'operand': p[2]}
 
 
 def p_parens(p):
@@ -256,12 +257,12 @@ def p_parens(p):
 
 def p_operand_func_call(p):
     """bin_op : func_call"""
-    p[0] = {**p[1], 'ctx': 'load'}
+    # p[0] = {**p[1], 'ctx': 'load'}
 
 
 def p_operand_ident(p):
     """bin_op : IDENT"""
-    p[0] = {**p[1], 'ctx': 'load'}
+    # p[0] = {**p[1], 'ctx': 'load'}
 
 
 def p_operand_num(p):
@@ -274,7 +275,7 @@ def p_operand_num(p):
 #############################################################
 def p_func_call(p):
     """func_call : IDENT LPAREN func_args RPAREN"""
-    p[0] = get_func_call_dict(func=p[1]['id'], args=p[3], keywords=[])
+    p[0] = get_func_call_dict(func=p[1]['type'], args=p[3], keywords=[])
 
 
 def p_args(p):
